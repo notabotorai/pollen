@@ -1,0 +1,8 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/api/geocode", "destination": "/api/geocode" },
+    { "source": "/api/pollen", "destination": "/api/pollen" }
+  ]
+}
