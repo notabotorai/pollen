@@ -9,6 +9,12 @@ export async function fetchLocation(query) {
   return res.json();
 }
 
+export async function fetchAutocomplete(query) {
+  const res = await fetch(`${API_BASE}/autocomplete?q=${encodeURIComponent(query)}`);
+  if (!res.ok) return [];
+  return res.json();
+}
+
 export async function fetchPollen(lat, lng, days = 5) {
   const res = await fetch(`${API_BASE}/pollen?lat=${lat}&lng=${lng}&days=${days}`);
   if (!res.ok) {

@@ -63,6 +63,34 @@ app.get('/api/geocode', async (req, res) => {
   }
 });
 
+// Autocomplete: partial query → location suggestions
+app.get('/api/autocomplete', async (req, res) => {
+  const { q } = req.query;
+  if (!q || q.trim().length < 2) return res.json([]);
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`;
+    const response = await fetch(url, {
+      headers: { 'User-Agent': 'PollenWatch/1.0 (pollen-monitor-app)' }
+    });
+    const data = await response.json();
+
+    const results = data.map(place => ({
+      displayName: place.display_name,
+      city: place.address?.city || place.address?.town || place.address?.village || place.address?.county || '',
+      state: place.address?.state || '',
+      country: place.address?.country_code?.toUpperCase() || '',
+      lat: parseFloat(place.lat),
+      lng: parseFloat(place.lon)
+    }));
+
+    res.json(results);
+  } catch (err) {
+    console.error('Autocomplete error:', err);
+    res.json([]);
+  }
+});
+
 // Pollen forecast via Google Pollen API
 app.get('/api/pollen', async (req, res) => {
   const { lat, lng, days = 5 } = req.query;

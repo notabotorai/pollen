@@ -1,5 +1,5 @@
 import './styles/index.css';
-import { fetchLocation, fetchPollen } from './api.js';
+import { fetchLocation, fetchPollen, fetchAutocomplete } from './api.js';
 import { getUpiColor, getUpiLabel, getPollenIcon, formatDate, getDayName, isToday } from './utils.js';
 
 // ===== DOM References =====
@@ -23,6 +23,12 @@ const toast = document.getElementById('toast');
 const toastMessage = document.getElementById('toast-message');
 const themeToggle = document.getElementById('theme-toggle');
 const themeIcon = document.getElementById('theme-icon');
+const autocompleteDropdown = document.getElementById('autocomplete-dropdown');
+
+// ===== Autocomplete state =====
+let autocompleteTimer = null;
+let activeIndex = -1;
+let autocompleteResults = [];
 
 // ===== Init particles =====
 function createParticles() {
@@ -65,9 +71,98 @@ document.querySelectorAll('.search-suggestions__chip').forEach(chip => {
   });
 });
 
+// ===== Autocomplete =====
+searchInput.addEventListener('input', () => {
+  const query = searchInput.value.trim();
+  clearTimeout(autocompleteTimer);
+  if (query.length < 2) {
+    hideAutocomplete();
+    return;
+  }
+  autocompleteTimer = setTimeout(async () => {
+    try {
+      autocompleteResults = await fetchAutocomplete(query);
+      renderAutocomplete(autocompleteResults);
+    } catch (e) {
+      hideAutocomplete();
+    }
+  }, 300);
+});
+
+searchInput.addEventListener('keydown', (e) => {
+  if (autocompleteDropdown.hidden) return;
+  const items = autocompleteDropdown.querySelectorAll('.autocomplete-dropdown__item');
+  if (e.key === 'ArrowDown') {
+    e.preventDefault();
+    activeIndex = Math.min(activeIndex + 1, items.length - 1);
+    updateActiveItem(items);
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault();
+    activeIndex = Math.max(activeIndex - 1, 0);
+    updateActiveItem(items);
+  } else if (e.key === 'Enter' && activeIndex >= 0) {
+    e.preventDefault();
+    selectAutocomplete(autocompleteResults[activeIndex]);
+  } else if (e.key === 'Escape') {
+    hideAutocomplete();
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!searchForm.contains(e.target)) hideAutocomplete();
+});
+
+function renderAutocomplete(results) {
+  if (!results.length) { hideAutocomplete(); return; }
+  activeIndex = -1;
+  autocompleteDropdown.innerHTML = results.map((r, i) => `
+    <li class="autocomplete-dropdown__item" data-index="${i}">
+      <svg class="autocomplete-dropdown__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span class="autocomplete-dropdown__text">${r.city}${r.state ? ', ' + r.state : ''}${r.country ? ' · ' + r.country : ''}</span>
+    </li>
+  `).join('');
+  autocompleteDropdown.hidden = false;
+
+  autocompleteDropdown.querySelectorAll('.autocomplete-dropdown__item').forEach(item => {
+    item.addEventListener('click', () => {
+      selectAutocomplete(autocompleteResults[parseInt(item.dataset.index)]);
+    });
+  });
+}
+
+function updateActiveItem(items) {
+  items.forEach((item, i) => {
+    item.classList.toggle('autocomplete-dropdown__item--active', i === activeIndex);
+  });
+}
+
+function hideAutocomplete() {
+  autocompleteDropdown.hidden = true;
+  autocompleteDropdown.innerHTML = '';
+  activeIndex = -1;
+  autocompleteResults = [];
+}
+
+async function selectAutocomplete(result) {
+  searchInput.value = result.city + (result.state ? ', ' + result.state : '');
+  hideAutocomplete();
+  setLoading(true);
+  try {
+    const pollen = await fetchPollen(result.lat, result.lng, 5);
+    renderAll(result, pollen);
+    mainContent.hidden = false;
+    mainContent.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    showToast(err.message || 'Something went wrong');
+  } finally {
+    setLoading(false);
+  }
+}
+
 // ===== Search handler =====
 searchForm.addEventListener('submit', async (e) => {
   e.preventDefault();
+  hideAutocomplete();
   const query = searchInput.value.trim();
   if (!query) return;
 
