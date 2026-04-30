@@ -156,6 +156,13 @@ input { font-family: var(--font); }
 }
 .search-suggestions__chip:hover { background: var(--accent-glow); color: var(--accent); border-color: var(--accent); }
 
+/* Search bar mobile fix */
+@media (max-width: 600px) {
+  .search-bar { flex-direction: column; gap: 0.5rem; }
+  .search-bar__input-wrap { min-width: 0; }
+  .search-bar__btn { width: 100%; text-align: center; padding: 0.85rem; }
+}
+
 /* ===== Main Content ===== */
 .main {
   position: relative; z-index: 10;
