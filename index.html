@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PollenWatch — Real-Time Pollen Monitor</title>
+  <meta name="description" content="Monitor pollen levels in your city. See severity scores, pollen types (tree, grass, weed), and individual plant species with health recommendations." />
+  <meta property="og:title" content="PollenWatch — Real-Time Pollen Monitor" />
+  <meta property="og:description" content="Check pollen severity by city or zip code. Get 5-day forecasts with plant-level detail." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>" />
+</head>
+<body>
+  <!-- Floating pollen particles -->
+  <div class="particles" id="particles" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header__brand">
+      <span class="header__icon">🌿</span>
+      <h1 class="header__title">PollenWatch</h1>
+    </div>
+    <p class="header__tagline">Real-time pollen monitoring</p>
+    <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark/light mode">
+      <span class="theme-toggle__icon" id="theme-icon">🌙</span>
+    </button>
+  </header>
+
+  <!-- Search -->
+  <section class="search-section" id="search-section">
+    <form class="search-bar" id="search-form" autocomplete="off">
+      <div class="search-bar__input-wrap">
+        <svg class="search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input
+          type="text"
+          class="search-bar__input"
+          id="search-input"
+          placeholder="Enter city name or zip code..."
+          aria-label="Search for a city or zip code"
+          required
+        />
+      </div>
+      <button type="submit" class="search-bar__btn" id="search-btn">
+        <span class="search-bar__btn-text">Check Pollen</span>
+        <span class="search-bar__btn-loader" id="search-loader" hidden>
+          <span class="spinner"></span>
+        </span>
+      </button>
+    </form>
+    <div class="search-suggestions" id="search-suggestions">
+      <span class="search-suggestions__label">Try:</span>
+      <button class="search-suggestions__chip" data-query="New York">New York</button>
+      <button class="search-suggestions__chip" data-query="Los Angeles">Los Angeles</button>
+      <button class="search-suggestions__chip" data-query="Chicago">Chicago</button>
+      <button class="search-suggestions__chip" data-query="Austin, TX">Austin, TX</button>
+      <button class="search-suggestions__chip" data-query="90210">90210</button>
+    </div>
+  </section>
+
+  <!-- Main content (hidden until search) -->
+  <main class="main" id="main-content" hidden>
+
+    <!-- Location & Date -->
+    <div class="location-bar" id="location-bar">
+      <div class="location-bar__info">
+        <svg class="location-bar__pin" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/></svg>
+        <span class="location-bar__name" id="location-name">—</span>
+      </div>
+      <span class="location-bar__date" id="location-date">—</span>
+      <span class="location-bar__demo-badge" id="demo-badge" hidden>DEMO DATA</span>
+    </div>
+
+    <!-- Severity Hero -->
+    <section class="severity-hero" id="severity-hero">
+      <div class="severity-gauge" id="severity-gauge">
+        <svg class="severity-gauge__svg" viewBox="0 0 200 200">
+          <circle class="severity-gauge__track" cx="100" cy="100" r="85" />
+          <circle class="severity-gauge__fill" id="gauge-fill" cx="100" cy="100" r="85" />
+        </svg>
+        <div class="severity-gauge__center">
+          <span class="severity-gauge__value" id="gauge-value">0</span>
+          <span class="severity-gauge__max">/5</span>
+        </div>
+      </div>
+      <div class="severity-hero__info">
+        <span class="severity-hero__category" id="severity-category">—</span>
+        <p class="severity-hero__recommendation" id="severity-recommendation">Search for a location to see pollen data.</p>
+      </div>
+    </section>
+
+    <!-- Pollen Type Breakdown -->
+    <section class="pollen-types" id="pollen-types">
+      <h2 class="section-title">Pollen Types</h2>
+      <div class="pollen-types__grid" id="pollen-types-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Plant Species -->
+    <section class="plant-species" id="plant-species">
+      <h2 class="section-title">Plant Species in Your Area</h2>
+      <div class="plant-species__grid" id="plant-species-grid">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- 5-Day Forecast -->
+    <section class="forecast" id="forecast">
+      <h2 class="section-title">5-Day Forecast</h2>
+      <div class="forecast__strip" id="forecast-strip">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+    <!-- Health Recommendations -->
+    <section class="health-recs" id="health-recs">
+      <h2 class="section-title">Health Recommendations</h2>
+      <div class="health-recs__list" id="health-recs-list">
+        <!-- Rendered by JS -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Error Toast -->
+  <div class="toast" id="toast" hidden>
+    <span class="toast__icon">⚠️</span>
+    <span class="toast__message" id="toast-message"></span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>Pollen data provided by <a href="https://developers.google.com/maps/documentation/pollen" target="_blank" rel="noopener">Google Pollen API</a>. Geocoding by <a href="https://nominatim.openstreetmap.org/" target="_blank" rel="noopener">OpenStreetMap Nominatim</a>.</p>
+    <p class="footer__disclaimer">This app provides general information only and is not medical advice. Consult your doctor about allergy management.</p>
+  </footer>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
