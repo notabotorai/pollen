@@ -403,6 +403,7 @@ input { font-family: var(--font); }
   border-top: 1px solid var(--border-glass);
 }
 .footer__disclaimer { margin-top: 0.5rem; font-size: 0.7rem; }
+.footer__credit { margin-top: 0.75rem; font-size: 0.7rem; opacity: 0.6; }
 
 /* ===== Animations ===== */
 @keyframes fadeUp {
