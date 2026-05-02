@@ -1,6 +1,10 @@
 import './styles/index.css';
 import { fetchLocation, fetchPollen, fetchAutocomplete } from './api.js';
 import { getUpiColor, getUpiLabel, getPollenIcon, formatDate, getDayName, isToday } from './utils.js';
+import { inject } from '@vercel/analytics';
+
+// Initialize Vercel Analytics
+inject();
 
 // ===== DOM References =====
 const searchForm = document.getElementById('search-form');
