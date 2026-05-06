@@ -1,0 +1,17 @@
+{
+  "name": "PollenWatch — Real-Time Pollen Monitor",
+  "short_name": "PollenWatch",
+  "description": "Monitor pollen levels in your city with 5-day forecasts and health recommendations.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#863bff",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
