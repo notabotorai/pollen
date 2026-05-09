@@ -34,6 +34,7 @@ let autocompleteResults = [];
 function createParticles(count) {
   const container = document.getElementById('particles');
   container.innerHTML = ''; // clear existing
+  const colors = ['#fbbf24', '#f59e0b', '#fcd34d', '#bef264', '#84cc16'];
   for (let i = 0; i < count; i++) {
     const p = document.createElement('div');
     p.className = 'particle';
@@ -41,6 +42,7 @@ function createParticles(count) {
     p.style.animationDuration = (12 + Math.random() * 20) + 's';
     p.style.animationDelay = (Math.random() * 15) + 's';
     p.style.width = p.style.height = (4 + Math.random() * 6) + 'px';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
     container.appendChild(p);
   }
 }
